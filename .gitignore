@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Env / secrets
+.env
+backend/.env
+*.local
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+admin-frontend/dist/
+admin-frontend/.vite/
+*.tsbuildinfo
+
+# Local SQLite (fallback DB for local runs)
+*.db
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Logs
+*.log

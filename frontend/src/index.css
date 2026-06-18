@@ -1,0 +1,1483 @@
+/* Theme-aware CSS variables (switched by data-theme on <html>) */
+:root,
+:root[data-theme="dark"] {
+  --app-bg: #0a0d12;
+  --app-text: #e6edf3;
+  --app-text-2: #9aa7b4;
+  --app-text-3: #6b7785;
+  --app-scroll: #2a3441;
+  --card-bg: #141a22;
+  --card-border: #222b38;
+  --card-border-hover: #30425c;
+  --accent: #3b82f6;
+  --accent-2: #16c784;
+  --glass: rgba(20, 26, 34, 0.7);
+}
+:root[data-theme="light"] {
+  --app-bg: #f4f6f9;
+  --app-text: #1f2733;
+  --app-text-2: #5b6b7b;
+  --app-text-3: #8a97a5;
+  --app-scroll: #c3ccd6;
+  --card-bg: #ffffff;
+  --card-border: #e9ecf1;
+  --card-border-hover: #cfd8e3;
+  --accent: #2563eb;
+  --accent-2: #10a37f;
+  --glass: rgba(255, 255, 255, 0.78);
+}
+
+/* Rise/fall colours (switched by data-updown on <html>). Default 绿涨红跌. */
+:root, :root[data-updown="green"] {
+  --up: #16c784;  --up-rgb: 22,199,132;
+  --down: #ea3943; --down-rgb: 234,57,67;
+}
+:root[data-updown="red"] {
+  --up: #ea3943;  --up-rgb: 234,57,67;
+  --down: #16c784; --down-rgb: 22,199,132;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: var(--app-bg);
+}
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Ambient gradient backdrop — subtle blue/teal glow on a deep base (dark only). */
+:root[data-theme="dark"] body {
+  background-image:
+    radial-gradient(1100px 620px at 82% -12%, rgba(59, 130, 246, 0.1), transparent 60%),
+    radial-gradient(900px 520px at -8% 8%, rgba(22, 199, 132, 0.07), transparent 55%);
+  background-attachment: fixed;
+}
+
+.mono {
+  font-family: "SF Mono", "JetBrains Mono", "Roboto Mono", Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.2px;
+}
+.up {
+  color: var(--up);
+}
+.down {
+  color: var(--down);
+}
+
+/* ---- Cards: glass surface, hairline border, soft depth ---- */
+.ant-card {
+  border: 1px solid var(--card-border) !important;
+  border-radius: 14px !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+:root[data-theme="dark"] .ant-card {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0));
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 10px 30px rgba(0, 0, 0, 0.32);
+}
+.ant-card-head {
+  border-bottom: 1px solid var(--card-border) !important;
+  min-height: 52px !important;
+}
+
+/* Stat cards: gentle hover lift + accent rail on top */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+.stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent 72%);
+  opacity: 0.65;
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--card-border-hover) !important;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.4);
+}
+:root[data-theme="light"] .stat-card:hover {
+  box-shadow: 0 16px 34px rgba(31, 41, 64, 0.12);
+}
+/* Toned stat cards (Dashboard only): soft colour-wash + livelier rail. Each card
+   passes a `tone` colour that locally overrides --accent. */
+.stat-card.toned::before {
+  height: 3px;
+  opacity: 0.9;
+}
+:root[data-theme="light"] .stat-card.toned {
+  background-image: linear-gradient(150deg, color-mix(in srgb, var(--accent) 13%, #fff), #fff 70%);
+  border-color: color-mix(in srgb, var(--accent) 22%, var(--card-border)) !important;
+}
+:root[data-theme="dark"] .stat-card.toned {
+  background-image: linear-gradient(150deg, color-mix(in srgb, var(--accent) 18%, var(--card-bg)), var(--card-bg) 72%);
+  border-color: color-mix(in srgb, var(--accent) 26%, var(--card-border)) !important;
+}
+.stat-card.toned .stat-icon-chip {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+/* ---- OKX-style trading terminal: chart (flex) + order book panel (fixed) ---- */
+.trade-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .trade-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Order book / trade rows: subtle hover highlight */
+.ob-row {
+  cursor: default;
+  transition: background 0.12s ease;
+}
+.ob-row:hover {
+  background: var(--card-border) !important;
+}
+/* OKX-style market panel controls */
+.ob-view {
+  width: 18px; padding: 2px; border: 1px solid var(--card-border); border-radius: 4px;
+  background: transparent; cursor: pointer; display: flex; flex-direction: column; gap: 1px;
+  opacity: 0.5; transition: opacity .12s ease, border-color .12s ease;
+}
+.ob-view:hover { opacity: 0.85; }
+.ob-view.on { opacity: 1; border-color: var(--accent); }
+.ob-hbtn {
+  flex: 1; height: 22px; font-size: 11px; cursor: pointer;
+  border: none; border-radius: 4px; color: var(--app-text-2);
+  background: color-mix(in srgb, var(--app-text) 6%, transparent);
+  transition: background .12s ease;
+}
+.ob-hbtn:hover { background: color-mix(in srgb, var(--app-text) 11%, transparent); }
+.ob-ttab {
+  font-size: 12px; font-weight: 600; color: var(--app-text-3); cursor: pointer;
+}
+.ob-ttab.on { color: var(--app-text); }
+/* Header metric labels — dashed underline (AiCoin), signalling a hoverable metric */
+.ob-metric-lbl { color: var(--app-text-3); border-bottom: 1px dashed var(--card-border); align-self: flex-end; line-height: 1.4; padding-bottom: 1px; }
+/* 小数位 precision selector — compact AiCoin-style trigger + dropdown */
+.ob-dec-sel.ant-select-sm .ant-select-selector { height: 24px; padding-inline: 8px; }
+.ob-dec-sel.ant-select-sm .ant-select-selection-item { font-size: 11.5px; line-height: 22px; }
+.ob-dec-sel .ant-select-arrow { font-size: 10px; inset-inline-end: 8px; }
+.ob-dec-dd .ant-select-item {
+  min-height: 26px; line-height: 18px; padding: 4px 10px; font-size: 11.5px; border-radius: 5px;
+}
+.ob-dec-dd .ant-select-item-option-content { font-size: 11.5px; }
+.ob-dec-dd .rc-virtual-list-holder { padding: 2px; }
+/* 数量 column header — unit-switch dropdown trigger */
+.ob-size-hd { transition: color .12s ease; }
+.ob-size-hd:hover { color: var(--app-text); }
+.ob-size-hd .anticon { opacity: .7; }
+/* Order-book gear (深度刷新 / 盘口深度) */
+.ob-cfg-gear {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 24px; padding: 0; border: none; border-radius: 4px;
+  background: transparent; color: var(--app-text-3); cursor: pointer; font-size: 15px;
+  transition: color .12s ease, background .12s ease;
+}
+.ob-cfg-gear:hover { color: var(--app-text); background: color-mix(in srgb, var(--app-text) 7%, transparent); }
+/* The two parent rows: label on the left, current value on the right */
+.ob-cfg .ant-dropdown-menu-submenu-title { padding-inline: 12px !important; }
+.ob-cfg-row { display: inline-flex; align-items: center; gap: 22px; min-width: 132px; justify-content: space-between; }
+.ob-cfg-row > span:first-child { color: var(--app-text); }
+/* Leave room for the submenu ▸ arrow so the value doesn't overlap it */
+.ob-cfg-val { color: var(--app-text); font-weight: 600; margin-inline-end: 16px; }
+/* Submenu lists (实时/0.5S… and 20档/50档…) */
+.ob-cfg-sub .ant-dropdown-menu-item { justify-content: center; min-width: 96px; }
+.ob-cfg-sub .ant-dropdown-menu-item-selected { background: color-mix(in srgb, var(--app-text) 8%, transparent) !important; color: var(--app-text) !important; font-weight: 600; }
+
+/* ---- AiCoin-style professional trading terminal (5-zone) ---- */
+.term-page {
+  margin: -20px -24px; /* break out of Content padding for an edge-to-edge terminal */
+  padding: 8px;
+}
+.term-symbol-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 8px 14px;
+  margin-bottom: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+}
+/* ===========================================================================
+   Full-bleed professional terminal shell (AiCoin-density). Prefix: tk-
+   =========================================================================== */
+.tk-app {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-size: 12px;
+  overflow: hidden;
+}
+/* 30px top system bar */
+.tk-header {
+  flex: 0 0 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 8px 0 6px;
+  border-bottom: 1px solid var(--card-border);
+  background: var(--card-bg);
+}
+.tk-header .tk-brand { display: flex; align-items: center; gap: 7px; }
+.tk-header .tk-brand .brand-logo { width: 22px; height: 22px; border-radius: 6px; box-shadow: none; }
+.tk-header .tk-brand b { font-size: 13px; font-weight: 700; }
+.tk-hdr-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+/* Header-left daily quote + date/clock + weather */
+.hdr-motto { display: flex; align-items: center; gap: 12px; min-width: 0; padding-left: 4px; }
+.hdr-motto .hdr-quote {
+  color: var(--app-text-2); font-size: 12px;
+  max-width: 48vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hdr-motto .hdr-meta { color: var(--app-text-3); font-size: 11px; flex: 0 0 auto; }
+.tk-tag {
+  font-size: 11px;
+  line-height: 16px;
+  padding: 0 6px;
+  border-radius: 3px;
+  border: 1px solid var(--card-border);
+  color: var(--app-text-2);
+}
+.tk-tag.demo { color: #f0a020; border-color: rgba(240,160,32,.5); background: rgba(240,160,32,.1); }
+.tk-icon-btn {
+  height: 22px; min-width: 22px; padding: 0 6px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  border: 1px solid transparent; border-radius: 4px; background: transparent;
+  color: var(--app-text-2); cursor: pointer; font-size: 12px;
+}
+.tk-icon-btn:hover { color: var(--app-text); background: color-mix(in srgb, var(--app-text) 8%, transparent); }
+/* user avatar trigger — flush, no inner padding/hover box */
+.tk-avatar-btn { padding: 0; height: 24px; min-width: 24px; }
+.tk-avatar-btn:hover { background: transparent; }
+.tk-avatar-btn .ant-avatar { background: color-mix(in srgb, var(--app-text) 26%, transparent); transition: filter .15s ease; }
+.tk-avatar-btn:hover .ant-avatar { filter: brightness(1.12); }
+
+.tk-body { flex: 1; display: flex; min-height: 0; }
+
+/* Right icon rail (AiCoin): panel-toggle icons */
+.tk-rail-r {
+  flex: 0 0 44px; width: 44px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding-top: 8px; border-left: 1px solid var(--card-border); background: var(--card-bg);
+}
+.tk-rail-btn {
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 6px; background: transparent; color: var(--app-text-3);
+  cursor: pointer; font-size: 17px; transition: color .12s ease, background .12s ease;
+}
+.tk-rail-btn:hover { color: var(--app-text); background: color-mix(in srgb, var(--app-text) 8%, transparent); }
+.tk-rail-btn.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+/* Market-list (自选区) collapse/expand handle, straddling the left edge of the center column */
+.tk-mkt-handle {
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 6;
+  width: 10px; height: 40px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 0 5px 5px 0; cursor: pointer;
+  background: var(--app-text); color: var(--app-bg); font-size: 9px; opacity: .45;
+  transition: opacity .12s ease;
+}
+.tk-mkt-handle:hover { opacity: 1; }
+/* Shortcut hint in the rail tooltip (下单面板 fn + F9) */
+.tk-rail-tip kbd {
+  display: inline-block; padding: 0 5px; margin: 0 1px; min-width: 18px; text-align: center;
+  font-family: inherit; font-size: 11px; line-height: 17px;
+  background: rgba(255,255,255,.18); border-radius: 4px;
+}
+
+/* 48px primary icon rail */
+.tk-nav {
+  flex: 0 0 48px; width: 48px;
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--card-border);
+  background: var(--card-bg);
+  overflow-y: auto;
+}
+.tk-nav-item {
+  position: relative;
+  flex: 0 0 auto;
+  height: 50px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  color: var(--app-text-3); cursor: pointer;
+  font-size: 10px; border: none; background: transparent; font-family: inherit;
+  transition: color .12s ease, background .12s ease;
+}
+.tk-nav-item .tk-nav-ico { font-size: 17px; line-height: 1; }
+/* Settings entry pinned to the bottom of the rail */
+.tk-nav-foot { margin-top: auto; border-top: 1px solid var(--card-border); }
+/* Home entry uses the brand logo image (AiCoin-style), cropped like .brand-logo. */
+.nav-home-logo {
+  display: block;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background-image: url(/logo.png);
+  background-size: 224% auto;
+  background-position: 50% 36%;
+  background-repeat: no-repeat;
+}
+.tk-nav-item:hover { color: var(--app-text); background: color-mix(in srgb, var(--app-text) 6%, transparent); }
+.tk-nav-item.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.tk-nav-item.active::before {
+  content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 2px;
+  border-radius: 0 2px 2px 0; background: var(--accent);
+}
+
+/* Scrollable page container for regular modules inside the terminal shell */
+.tk-page { flex: 1; min-width: 0; min-height: 0; overflow: auto; padding: 16px 20px; }
+.tk-page-inner { width: 100%; min-width: 0; }
+
+/* 4-column full-height workspace (resizable via splitters) */
+.tk-workspace { flex: 1; min-width: 0; display: flex; }
+.tk-split {
+  flex: 0 0 4px; width: 4px; cursor: col-resize; background: transparent;
+  border-right: 1px solid var(--card-border);
+  transition: background .12s ease;
+}
+.tk-split:hover { background: rgba(128, 128, 128, 0.35); }
+/* horizontal splitter — drag the chart/bottom-panel divider up & down (OKX) */
+.tk-split-h {
+  flex: 0 0 5px; height: 5px; cursor: row-resize; background: transparent;
+  border-top: 1px solid var(--card-border);
+  transition: background .12s ease;
+}
+.tk-split-h:hover { background: rgba(128, 128, 128, 0.35); }
+.tk-col {
+  min-width: 0; min-height: 0;
+  display: flex; flex-direction: column;
+  background: var(--card-bg);
+  overflow: hidden;
+}
+.tk-center { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+
+/* compact market summary bar (no card) */
+.tk-summary {
+  flex: 0 0 auto; min-height: 42px;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 16px;
+  padding: 4px 12px; border-bottom: 1px solid var(--card-border);
+}
+.tk-chart-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.tk-chart-fill { flex: 1; min-height: 0; }
+.tk-bottom { overflow: hidden; }
+
+/* 24px status bar */
+.tk-status {
+  flex: 0 0 24px; height: 24px;
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 12px; border-top: 1px solid var(--card-border);
+  background: var(--card-bg);
+  font-size: 11px; color: var(--app-text-2); overflow-x: auto; white-space: nowrap;
+}
+.tk-status .sb-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+/* AiCoin-style footer metric cells: gray label + colored values */
+.tk-status .sf-cell { display: inline-flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+.tk-status .sf-label { color: var(--app-text-3); }
+
+/* density overrides scoped to the terminal */
+.tk-app .ant-segmented { font-size: 12px; }
+.tk-app .ant-segmented .ant-segmented-item-label { min-height: 22px; line-height: 22px; padding: 0 8px; }
+.tk-app .ant-tabs-tab { padding: 5px 0 !important; font-size: 12px; }
+.tk-app .ant-table-cell { padding: 4px 8px !important; font-size: 12px; }
+.tk-app .ant-card { border: none !important; border-radius: 0 !important; box-shadow: none !important; background-image: none !important; }
+.tk-app .ant-input, .tk-app .ant-input-number, .tk-app .ant-select-selector { border-radius: 4px !important; }
+.tk-app .ant-select-sm .ant-select-selector { height: 26px !important; }
+.tk-app .ant-input-number { height: 30px; }
+.tk-app .ant-input-number-input { height: 28px; }
+.tk-app .watch-row { padding: 6px 10px; }
+.tk-app .ant-tabs-nav { margin-bottom: 4px !important; }
+.tk-app .ant-tabs-top > .ant-tabs-nav::before { border-bottom-color: var(--card-border); }
+/* hairline divider under panel headers */
+.tk-col .ant-tabs-nav, .tk-center .ant-tabs-nav { border-bottom: 1px solid var(--card-border); }
+
+/* ---- Watchlist (AiCoin two-line rows + sortable header) ---- */
+.wl { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.wl-head {
+  display: flex; align-items: center; gap: 12px; padding: 5px 12px;
+  border-bottom: 1px solid var(--card-border);
+  font-size: 10.5px; color: var(--app-text-3);
+}
+.wl-head span { cursor: pointer; display: inline-flex; align-items: center; gap: 2px; user-select: none; white-space: nowrap; }
+.wl-head span:hover { color: var(--app-text-2); }
+.wl-c-name { flex: 1.5; min-width: 0; display: flex; align-items: center; gap: 8px; }
+.wl-c-text { min-width: 0; }
+.wl-c-px { flex: 1.1; min-width: 0; text-align: right; justify-content: flex-end; }
+.wl-c-chg { flex: 0.85; min-width: 0; text-align: right; justify-content: flex-end; }
+.wl-list { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.wl-row {
+  display: flex; align-items: center; gap: 12px; padding: 6px 12px; cursor: pointer;
+  border-left: 2px solid transparent; border-bottom: 1px solid var(--card-border);
+  transition: background .1s ease;
+}
+.wl-row:hover { background: color-mix(in srgb, var(--app-text) 5%, transparent); }
+.wl-row.active { background: color-mix(in srgb, var(--accent) 10%, transparent); border-left-color: var(--accent); }
+.wl-pair { font-size: 11.5px; font-weight: 600; color: var(--app-text); white-space: nowrap; display: flex; align-items: center; }
+/* Coin logo in the watchlist (toggled by the K线左侧行情·展示币种图标 setting).
+   Sits left of the name block, spanning both the pair + sub lines (AiCoin style). */
+.wl-coin { width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto; object-fit: contain; }
+.wl-coin-fb {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto;
+  font-size: 12px; font-weight: 700; color: #fff; background: var(--accent);
+}
+.wl-kind { font-size: 9.5px; font-weight: 400; color: var(--app-text-3); }
+.wl-sub { font-size: 9.5px; color: var(--app-text-3); margin-top: 2px; }
+.wl-c-px .mono { font-size: 11.5px; }
+.wl-fiat { font-size: 9.5px; color: var(--app-text-3); margin-top: 2px; }
+.wl-pill { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.wl-empty { text-align: center; color: var(--app-text-3); font-size: 11px; padding: 24px 0; }
+
+/* ---- Add-to-watchlist picker ---- */
+.awl-head {
+  display: flex; align-items: center; gap: 10px; padding: 6px 8px;
+  font-size: 11px; color: var(--app-text-3);
+  border-bottom: 1px solid var(--card-border);
+}
+.awl-body { max-height: 52vh; overflow-y: auto; }
+.awl-row {
+  display: flex; align-items: center; gap: 10px; padding: 8px;
+  font-size: 12.5px; border-bottom: 1px solid var(--card-border);
+}
+.awl-row:hover { background: color-mix(in srgb, var(--app-text) 6%, transparent); }
+.awl-row.fav { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+
+/* Watchlist right-click menu — black, semibold, compact, flat (AiCoin reference).
+   overlayClassName puts .wl-ctx on the popup root; use descendant selectors so the
+   rules win over antd's runtime-injected component styles. */
+.wl-ctx .ant-dropdown-menu {
+  min-width: 0 !important;
+  width: max-content !important;
+  padding: 4px 0 !important;
+  border-radius: 3px !important;
+  background: var(--card-bg);
+}
+.wl-ctx .ant-dropdown-menu-item {
+  height: 32px !important;
+  padding: 0 16px 0 12px !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  border-radius: 0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", Arial, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0 !important;
+  color: var(--app-text) !important;
+  text-rendering: optimizeLegibility;
+}
+.wl-ctx .ant-dropdown-menu-title-content {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: inherit !important;
+}
+.wl-ctx .ant-dropdown-menu-item:hover {
+  background: color-mix(in srgb, var(--app-text) 9%, transparent) !important;
+  border-radius: 0 !important;
+}
+/* 删除 is black by default, red only on hover (per reference). */
+.wl-ctx .ant-dropdown-menu-item-danger,
+.wl-ctx .ant-dropdown-menu-item-danger .ant-dropdown-menu-title-content { color: var(--app-text) !important; }
+.wl-ctx .ant-dropdown-menu-item-danger:hover { background: rgba(229, 57, 53, 0.08) !important; }
+.wl-ctx .ant-dropdown-menu-item-danger:hover,
+.wl-ctx .ant-dropdown-menu-item-danger:hover .ant-dropdown-menu-title-content { color: #e53935 !important; }
+.wl-ctx .ant-dropdown-menu-submenu-arrow { color: #888; font-size: 12px; }
+.wl-ctx .ant-dropdown-menu-item-divider { margin: 4px 0 !important; }
+.wl-foot { flex: 0 0 auto; display: flex; padding: 8px 10px; border-top: 1px solid var(--card-border); }
+.wl-foot button {
+  flex: 1; height: 30px; cursor: pointer;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 8px; background: color-mix(in srgb, var(--accent) 5%, transparent);
+  color: var(--app-text); font-size: 12px; font-weight: 600; font-family: inherit;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  transition: background .12s ease, border-color .12s ease;
+}
+.wl-foot button:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.halt-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ea3943;
+  background: rgba(234, 57, 67, 0.12);
+  border: 1px solid rgba(234, 57, 67, 0.4);
+}
+.term-grid {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr) 308px 286px;
+  grid-template-rows: 484px 252px;
+  grid-template-areas:
+    "watch chart order micro"
+    "bottom bottom bottom bottom";
+  gap: 8px;
+}
+.term-watch { grid-area: watch; }
+.term-chart { grid-area: chart; }
+.term-order { grid-area: order; }
+.term-micro { grid-area: micro; }
+.term-bottom { grid-area: bottom; }
+.term-zone {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.term-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+/* OKX/AiCoin-density: small fonts + tight cells so columns fit without h-scroll */
+.term-panel { font-size: 11.5px; }
+.term-panel .ant-tabs-tab { font-size: 12.5px; padding: 6px 0; }
+.term-panel .ant-table { font-size: 11.5px; }
+/* keep every cell on one line — numbers must not wrap (scroll.x handles overflow) */
+.term-panel .ant-table-cell { white-space: nowrap; }
+.term-panel .ant-table-thead > tr > th,
+.term-panel .ant-table-tbody > tr > td { padding: 4px 12px; font-size: 11.5px; line-height: 1.5; }
+.term-panel .ant-table-thead > tr > th {
+  font-weight: 500; color: var(--app-text-3); letter-spacing: 0.2px;
+  background: transparent; border-bottom: 1px solid var(--card-border);
+}
+.term-panel .ant-table-tbody > tr > td { border-bottom: 1px solid var(--card-border); }
+.term-panel .ant-table-tbody > tr:hover > td {
+  background: color-mix(in srgb, var(--app-text) 3.5%, transparent);
+}
+.term-panel .ant-table-cell .mono { font-size: 11.5px; letter-spacing: -0.1px; }
+.term-panel .ant-tag { font-size: 10.5px; line-height: 15px; padding: 0 5px; margin-inline-end: 0; border-radius: 4px; }
+.term-panel .ant-btn-sm { font-size: 11px; height: 20px; padding: 0 7px; }
+.term-panel .ant-checkbox-wrapper { font-size: 12px; }
+/* drop antd's grey scrollbar-placeholder gutter cell (ugly when no scrollbar) */
+.term-panel .ant-table-cell-scrollbar { display: none; }
+/* hide the vertical scrollbar (width:0) — still wheel-scrollable; keep the
+   horizontal one slim (height:6px). */
+.term-panel .ant-table-body::-webkit-scrollbar,
+.term-panel .ant-table-content::-webkit-scrollbar { width: 0; height: 6px; }
+.term-panel .ant-table-body::-webkit-scrollbar-thumb,
+.term-panel .ant-table-content::-webkit-scrollbar-thumb {
+  background: var(--card-border); border-radius: 3px; border: none; background-clip: padding-box;
+}
+.term-panel .ant-table-body::-webkit-scrollbar-track,
+.term-panel .ant-table-content::-webkit-scrollbar-track { background: transparent; }
+/* no heavy divider on the table's right edge */
+.term-panel .ant-table-body { border-inline-end: none; }
+
+/* compact strategy add/edit form drawer (small font, 2-col rows) */
+.strat-form-drawer .ant-form-item { margin-bottom: 14px; }
+.strat-form-drawer .ant-form-item-label { padding-bottom: 3px; }
+.strat-form-drawer .ant-form-item-label > label { font-size: 12.5px; color: var(--app-text-2); height: auto; }
+.strat-form-drawer .form-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.strat-form-drawer .form-hint { font-size: 12px; color: var(--app-text-3); margin: -4px 0 14px; line-height: 1.5; }
+.strat-form-drawer .ant-input,
+.strat-form-drawer .ant-input-number-input,
+.strat-form-drawer .ant-select-selection-item { font-size: 13px; }
+
+/* compact strategy table — small font, tight cells, wrapping key-params */
+.strat-page { width: 100%; min-width: 0; }
+.strat-table .ant-table { font-size: 12.5px; }
+.strat-table .ant-table-thead > tr > th { font-size: 12px; font-weight: 500; padding: 8px 10px; }
+.strat-table .ant-table-tbody > tr > td { padding: 8px 10px; vertical-align: middle; }
+.strat-table .ant-table-cell .mono { font-size: 12px; }
+.strat-table .ant-table-container { overflow-x: hidden; }
+.strat-table .ant-table-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.strat-table .ant-table-cell-fix-left,
+.strat-table .ant-table-cell-fix-right {
+  position: static !important;
+}
+
+/* ---- Backtest setup form — refined, compact, elegant ---- */
+.bt-form .ant-form-item { margin-bottom: 14px; }
+/* Labels: smaller, lighter, uppercase-ish tracking for a tidy look */
+.bt-form .ant-form-item-label { padding-bottom: 5px; }
+.bt-form .ant-form-item-label > label {
+  height: auto; font-size: 12px; font-weight: 500;
+  color: var(--app-text-3); letter-spacing: 0.2px;
+}
+/* Controls: hairline border, soft radius, smaller text, gentle focus */
+.bt-form .ant-input,
+.bt-form .ant-input-number,
+.bt-form .ant-input-number-input,
+.bt-form .ant-select-selector,
+.bt-form .ant-select-selection-item,
+.bt-form .ant-select-selection-search-input {
+  font-size: 13px;
+}
+.bt-form .ant-input-number,
+.bt-form .ant-select .ant-select-selector,
+.bt-form .ant-input {
+  border-radius: 8px;
+  border-color: var(--card-border);
+  background: color-mix(in srgb, var(--app-text) 2.5%, transparent);
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+.bt-form .ant-input-number:hover,
+.bt-form .ant-select:hover .ant-select-selector,
+.bt-form .ant-input:hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--card-border));
+  background: transparent;
+}
+.bt-form .ant-input-number-focused,
+.bt-form .ant-select-focused .ant-select-selector,
+.bt-form .ant-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 16%, transparent) !important;
+  background: transparent;
+}
+.bt-form .ant-input-number { width: 100%; }
+/* Run button: a touch tighter + refined weight */
+.bt-form .ant-btn { border-radius: 8px; font-weight: 600; letter-spacing: 1px; }
+
+/* OKX-style strategy summary cards + type-filter pills */
+.strat-card {
+  padding: 14px 16px; background: var(--card-bg);
+  border: 1px solid var(--card-border); border-radius: 12px; min-height: 96px;
+}
+.strat-card-h { font-size: 12px; color: var(--app-text-3); margin-bottom: 10px; }
+.strat-pill {
+  padding: 4px 14px; font-size: 13px; cursor: pointer;
+  border-radius: 999px; border: 1px solid var(--card-border);
+  background: var(--card-bg); color: var(--app-text-2);
+  transition: all .12s ease;
+}
+.strat-pill:hover { color: var(--app-text); border-color: var(--app-text-3); }
+.strat-pill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* strategy stop-dialog option cards (停止并卖出 / 停止但不卖出) */
+.strat-stop-opt {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  padding: 14px 16px; border-radius: 10px;
+  border: 1px solid var(--card-border); background: var(--card-bg);
+  transition: border-color .12s ease, background .12s ease;
+}
+.strat-stop-opt:hover { border-color: var(--accent); background: var(--app-hover, rgba(128,128,128,0.06)); }
+
+/* compact, refined toast notifications (OKX/AiCoin-ish, smaller & tidy) */
+.ant-notification { width: auto; }
+.ant-notification-notice {
+  width: 300px; padding: 10px 12px; border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+.ant-notification-notice-message {
+  font-size: 13px !important; font-weight: 600; line-height: 1.4;
+  margin-bottom: 1px !important; padding-inline-end: 16px;
+}
+.ant-notification-notice-description { font-size: 11px; line-height: 1.4; color: var(--app-text-3); }
+.ant-notification-notice-icon { font-size: 17px; line-height: 17px; margin-top: 1px; }
+.ant-notification-notice-with-icon .ant-notification-notice-message,
+.ant-notification-notice-with-icon .ant-notification-notice-description { margin-inline-start: 28px; }
+.ant-notification-notice-close { inset-inline-end: 9px; top: 9px; width: 18px; height: 18px; }
+.watch-row {
+  display: flex;
+  align-items: center;
+  padding: 7px 12px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background 0.12s ease;
+}
+.watch-row:hover { background: color-mix(in srgb, var(--app-text) 6%, transparent); }
+.watch-row.active {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border-left-color: var(--accent);
+}
+.oe-label { font-size: 11px; color: var(--app-text-3); margin-bottom: 4px; }
+.oe-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--app-text-2);
+}
+.oe-row-label { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.oe-quick { display: inline-flex; gap: 8px; font-size: 11px; }
+.oe-quick a { color: var(--app-text-3); }
+.oe-quick a:hover { color: var(--accent); }
+
+/* ---- AiCoin-style order ticket ---- */
+/* Top pills: margin mode / position mode */
+.oe-pills { display: flex; gap: 8px; }
+.oe-pill {
+  flex: 1; height: 30px; border: none; border-radius: 6px; cursor: pointer; font-family: inherit;
+  background: color-mix(in srgb, var(--app-text) 6%, transparent);
+  color: var(--app-text); font-size: 12.5px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.oe-pill .chev { color: var(--app-text-3); font-size: 11px; }
+.oe-pill:hover { background: color-mix(in srgb, var(--app-text) 10%, transparent); }
+/* Combined pill: margin-mode | leverage (two click targets, one capsule) */
+.oe-pill-grp { padding: 0; cursor: default; }
+.oe-pill-grp:hover { background: color-mix(in srgb, var(--app-text) 6%, transparent); }
+.oe-pill-grp > button {
+  height: 100%; border: none; background: transparent; cursor: pointer; font-family: inherit;
+  color: var(--app-text); font-size: 12.5px; padding: 0 10px;
+  display: inline-flex; align-items: center; gap: 4px; border-radius: 6px;
+}
+.oe-pill-grp > button:hover { background: color-mix(in srgb, var(--app-text) 8%, transparent); }
+.oe-pill-grp .sep { color: var(--card-border); font-style: normal; }
+/* Account box: name row + available row */
+.oe-acct { border: 1px solid var(--card-border); border-radius: 6px; overflow: hidden; }
+.oe-acct .r1 {
+  display: flex; align-items: center; gap: 7px; height: 32px; padding: 0 10px;
+  background: color-mix(in srgb, var(--app-text) 5%, transparent);
+  font-size: 12.5px; font-weight: 600;
+}
+.oe-acct .r2 { display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; font-size: 11px; }
+.oe-acct .r2 .lbl { color: var(--app-text-3); }
+/* Slanted open/close/trigger tabs (AiCoin parallelogram seams) */
+.oe-tabs { display: flex; flex: 0 0 auto; }
+.oe-tabs button {
+  flex: 1; height: 34px; border: none; cursor: pointer; font-family: inherit;
+  font-size: 13.5px; font-weight: 600; color: var(--app-text-2);
+  background: color-mix(in srgb, var(--app-text) 8%, transparent);
+  clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  margin-left: -9px;
+  transition: background .12s ease, color .12s ease;
+}
+.oe-tabs button:first-child { clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%); margin-left: 0; border-radius: 4px 0 0 4px; }
+.oe-tabs button:last-child { clip-path: polygon(12px 0, 100% 0, 100% 100%, 0 100%); border-radius: 0 4px 4px 0; }
+.oe-tabs button:hover { color: var(--app-text); }
+.oe-tabs button.on-open { background: var(--up); color: #fff; }
+.oe-tabs button.on-close { background: var(--down); color: #fff; }
+.oe-tabs button.on-trigger { background: var(--accent); color: #fff; }
+/* Filled input row with the label embedded on the left, unit on the right */
+.oe-field {
+  display: flex; align-items: center; gap: 8px;
+  height: 42px; padding: 0 12px;
+  background: color-mix(in srgb, var(--app-text) 5%, transparent);
+  border: 1px solid transparent; border-radius: 6px;
+  transition: border-color .12s ease;
+}
+.oe-field:focus-within { border-color: var(--accent); }
+.oe-field .oe-field-label { flex: 0 0 auto; font-size: 13px; color: var(--app-text-2); }
+/* Derived price mode (排队价/超价/对手价) shown in place of the number, + 设置 link */
+.oe-price-mode { flex: 1; min-width: 0; text-align: right; font-size: 14px; font-weight: 600; color: var(--app-text-2); cursor: pointer; }
+.oe-price-ro { margin-left: auto; font-size: 15px; font-weight: 700; font-family: "SF Mono", "JetBrains Mono", "Roboto Mono", Menlo, monospace; }
+/* "设置" link: visually distinct from the four price-type links — accent, gear icon, far right */
+.oe-quick a.oe-price-cfg {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 3px;
+  padding: 1px 8px; border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 4px; color: var(--accent); font-size: 11px;
+}
+.oe-quick a.oe-price-cfg:hover { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.oe-price-cfg .anticon { font-size: 11px; }
+.oe-pricecfg label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--app-text-2); width: 180px; }
+/* AiCoin-style "说明" tooltip (light) for the active price mode */
+.oe-price-note-tip { max-width: 320px; }
+.oe-price-note-tip .ant-tooltip-inner { color: var(--app-text); padding: 12px 14px; font-size: 12.5px; line-height: 1.7; box-shadow: 0 6px 20px rgba(0,0,0,.14); }
+.oe-price-note-title { font-weight: 600; margin-bottom: 4px; }
+/* 数量/成本价值 dropdown label on the size field */
+.oe-size-label {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px;
+  font-size: 13px; color: var(--app-text-2); cursor: pointer; user-select: none;
+}
+.oe-size-label:hover { color: var(--app-text); }
+.oe-size-label .anticon { font-size: 10px; color: var(--app-text-3); }
+/* Right-side unit picker (张 / BTC / USDT) */
+.oe-field .oe-unit-pick {
+  display: inline-flex; align-items: center; gap: 3px; cursor: pointer; user-select: none;
+}
+.oe-field .oe-unit-pick .anticon { font-size: 10px; color: var(--app-text-3); }
+.oe-field .oe-unit-pick:hover { filter: brightness(1.15); }
+.oe-size-conv { margin-top: 4px; padding-left: 2px; font-size: 11px; color: var(--app-text-3); }
+/* Percentage preview: two stacked 买入/卖出 rows inside the size field */
+.oe-field-bs { height: auto; min-height: 42px; padding-top: 5px; padding-bottom: 5px; align-items: center; }
+.oe-bs { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.oe-bs-row { display: flex; align-items: baseline; justify-content: flex-end; gap: 5px; font-size: 12px; white-space: nowrap; }
+.oe-bs-tag { margin-right: 8px; font-weight: 600; }
+.oe-bs-row.buy .oe-bs-tag { color: var(--up); }
+.oe-bs-row.sell .oe-bs-tag { color: var(--down); }
+.oe-bs-val { font-weight: 700; color: var(--app-text); }
+.oe-bs-unit { color: var(--app-text-3); }
+.oe-bs-approx { color: var(--app-text-3); }
+/* Stepper spans both rows in preview mode */
+.oe-field-bs .oe-step { height: auto; align-self: stretch; }
+/* Execution-modifier row: checkbox + Post Only / FOK / IOC dropdown */
+.oe-exec { display: flex; align-items: center; gap: 8px; }
+.oe-exec-label {
+  display: inline-flex; align-items: center; gap: 4px; cursor: pointer; user-select: none;
+  font-size: 12px; color: var(--app-text-2);
+}
+.oe-exec-label:hover { color: var(--app-text); }
+.oe-exec-label .anticon { font-size: 10px; color: var(--app-text-3); }
+.oe-size-conv b { color: var(--app-text-2); }
+.oe-field .oe-field-unit { flex: 0 0 auto; font-size: 12px; color: var(--app-text-3); }
+.oe-field .oe-field-unit.accent { color: #f0a020; }
+.oe-field .ant-input-number { flex: 1; min-width: 0; background: transparent; box-shadow: none !important; }
+.oe-field .ant-input-number .ant-input-number-input {
+  text-align: right; font-weight: 700; font-size: 15px;
+  font-family: "SF Mono", "JetBrains Mono", "Roboto Mono", Menlo, monospace;
+}
+/* AiCoin-style price stepper: a bordered ▲▼ box pinned to the far right, after the unit */
+.oe-step {
+  flex: 0 0 auto; display: flex; flex-direction: column;
+  width: 22px; height: 30px; margin-left: 4px;
+  border: 1px solid var(--card-border); border-radius: 4px; overflow: hidden;
+}
+.oe-step button {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 0; border: 0; background: transparent; cursor: pointer;
+  font-size: 8px; line-height: 1; color: var(--app-text-3);
+}
+.oe-step button:first-child { border-bottom: 1px solid var(--card-border); }
+.oe-step button:hover { color: var(--accent); background: color-mix(in srgb, var(--app-text) 6%, transparent); }
+.oe-field-step.is-market .ant-input-number-input { text-align: left; }
+/* Quick rows under fields: plain text links (price modes / percent sizing) */
+.oe-quick a.on { color: var(--accent); font-weight: 600; }
+.oe-pcts { display: flex; gap: 4px; }
+.oe-pcts button {
+  flex: 1; height: 24px; font-size: 12px; font-family: inherit; cursor: pointer;
+  border: none; border-radius: 4px; background: transparent; color: var(--app-text-2);
+  transition: color .12s ease, background .12s ease;
+}
+.oe-pcts button:hover { color: var(--app-text); background: color-mix(in srgb, var(--app-text) 7%, transparent); }
+.oe-pcts button.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); font-weight: 600; }
+/* Size-presets row: the preset buttons / slider on the left + edit pencil on the right */
+.oe-pcts-row { display: flex; align-items: center; gap: 6px; }
+.oe-pcts-row .oe-pcts { flex: 1; }
+/* AiCoin-style size slider: slim rail, dark fill, configured-node dots, centered hollow handle.
+   Position/centering is left to antd defaults — we only recolour and resize symmetrically so the
+   handle stays vertically centred on the rail. */
+.oe-size-slider { flex: 1; display: flex; align-items: center; gap: 8px; padding: 0 2px; }
+.oe-size-slider .ant-slider { flex: 1; margin: 10px 8px; }
+.oe-slider-pct {
+  flex: 0 0 auto; min-width: 34px; text-align: right;
+  font-size: 12px; font-weight: 600; color: var(--app-text);
+}
+/* rail (unfilled) + track (filled) */
+.oe-size-slider .ant-slider .ant-slider-rail { background: var(--card-border); }
+.oe-size-slider .ant-slider .ant-slider-track,
+.oe-size-slider .ant-slider:hover .ant-slider-track { background: var(--app-text); }
+/* labels carry a space (rc-slider drops empty-string marks) — hide the text, keep the dots */
+.oe-size-slider .ant-slider .ant-slider-mark { display: none; }
+/* refined nodes (AiCoin look): small solid grey ahead of the handle, hollow once passed */
+.oe-size-slider .ant-slider .ant-slider-dot {
+  width: 7px; height: 7px; inset-block-start: -1.5px; box-sizing: border-box;
+  background: var(--app-text-3); border: none;
+}
+.oe-size-slider .ant-slider:hover .ant-slider-dot { background: var(--app-text-3); }
+.oe-size-slider .ant-slider .ant-slider-dot-active,
+.oe-size-slider .ant-slider:hover .ant-slider-dot-active {
+  background: var(--app-bg); border: 1.5px solid var(--app-text-3);
+}
+/* handle — small white-filled hollow circle with a dark ring; 8px inside antd's 10px wrapper
+   (inset 1px keeps it centred), held at one size across hover/drag so it doesn't grow */
+.oe-size-slider .ant-slider .ant-slider-handle::after,
+.oe-size-slider .ant-slider .ant-slider-handle:hover::after,
+.oe-size-slider .ant-slider .ant-slider-handle:focus::after,
+.oe-size-slider .ant-slider .ant-slider-handle:active::after {
+  width: 8px; height: 8px; inset-inline-start: 1px; inset-block-start: 1px;
+  background: var(--app-bg); box-shadow: 0 0 0 2px var(--app-text); outline: none;
+}
+.oe-pcts-edit {
+  flex: 0 0 auto; display: flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; padding: 0; border: none; border-radius: 4px;
+  background: transparent; color: var(--app-text-3); cursor: pointer; font-size: 14px;
+  transition: color .12s ease, background .12s ease;
+}
+.oe-pcts-edit:hover { color: var(--accent); background: color-mix(in srgb, var(--app-text) 7%, transparent); }
+
+/* "常用下单数量" preset editor dialog */
+.sp-modes { display: flex; justify-content: center; padding: 20px 0 8px; }
+.sp-modes .ant-radio-group { display: flex; gap: 40px; }
+.sp-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; padding: 16px 0 24px; }
+.sp-cell {
+  display: flex; align-items: center; gap: 2px;
+  height: 48px; padding: 0 10px; border-radius: 8px;
+  background: color-mix(in srgb, var(--app-text) 5%, transparent);
+}
+.sp-cell .ant-input-number { flex: 1; min-width: 0; background: transparent; box-shadow: none !important; }
+.sp-cell .ant-input-number-input { min-width: 0; padding: 0; font-size: 16px; font-weight: 700; }
+/* Fixed-qty boxes hold a placeholder, not a unit; shrink placeholder so all five fit */
+.sp-cell-fixed .ant-input-number-input { font-size: 14px; font-weight: 400; }
+.sp-cell-fixed .ant-input-number-input::placeholder { color: var(--app-text-3); }
+.sp-cell-unit { flex: 0 0 auto; font-size: 13px; color: var(--app-text-3); }
+/* Slider mode: fixed nodes shown read-only — keep the value dark, not antd's greyed-out look */
+.sp-cell-ro .ant-input-number-disabled { background: transparent; color: var(--app-text); cursor: default; }
+.sp-cell-ro .ant-input-number-disabled .ant-input-number-input { color: var(--app-text); cursor: default; }
+.sp-actions { display: flex; justify-content: center; gap: 16px; padding-top: 4px; }
+.sp-actions .ant-btn { min-width: 150px; height: 44px; border-radius: 8px; font-size: 15px; }
+/* "Can open" hints above the buy/sell buttons */
+.oe-can { display: flex; gap: 8px; font-size: 11.5px; color: var(--app-text-3); }
+.oe-can span { flex: 1; }
+.oe-can b { color: var(--app-text); font-weight: 600; }
+/* Account area: bold section headers + hairline dividers (AiCoin) */
+.oe-sec-h { display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--app-text); }
+.oe-sec-h .lbl { font-size: 11px; font-weight: 400; color: var(--app-text-3); }
+.oe-sec-div { border-top: 1px solid var(--card-border); margin: 4px 0; }
+.oe-pos {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.oe-account {
+  margin-top: auto;
+  border-top: 1px solid var(--card-border);
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.oe-account-title { font-size: 12px; font-weight: 600; color: var(--app-text); margin-bottom: 2px; }
+/* K-line OHLC info line */
+.ohlc-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 4px 12px 6px;
+  font-size: 11.5px;
+  color: var(--app-text-3);
+}
+.ohlc-line b { color: var(--app-text); font-weight: 600; }
+@media (max-width: 1280px) {
+  .term-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas: "chart" "order" "micro" "watch" "bottom";
+  }
+  .term-chart { height: 480px; }
+  .term-watch, .term-micro { height: 360px; }
+}
+
+/* ---- Chart indicator toolbar ---- */
+.chart-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0 8px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 6px;
+}
+.chart-tool {
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--card-border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--app-text-2);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+.chart-tool:hover {
+  color: var(--app-text);
+  border-color: var(--card-border-hover);
+}
+.chart-tool.on {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+/* Fullscreen chart wrapper fills the screen with a solid surface. */
+.chart-fs {
+  background: var(--card-bg);
+  padding: 12px;
+  overflow: auto;
+}
+.chart-fs .ant-card {
+  height: 100%;
+}
+
+/* ---- Bottom status bar (AiCoin-style) ---- */
+.status-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 30px;
+  padding: 0 18px;
+  font-size: 12px;
+  color: var(--app-text-2);
+  border-top: 1px solid var(--card-border);
+  background: var(--card-bg);
+}
+.status-bar .sb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.status-bar .sb-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.stat-icon-chip {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  flex: 0 0 auto;
+}
+.stat-title {
+  color: var(--app-text-2);
+  font-size: 13px;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+.stat-value {
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+.stat-delta {
+  margin-top: 6px;
+  min-height: 18px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Dashboard compact metric strip — all account figures in one dense row. */
+.metric-strip {
+  display: flex;
+  flex-wrap: wrap;
+}
+.metric-cell {
+  flex: 1 1 0;
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 14px 18px;
+  border-right: 1px solid var(--card-border);
+}
+.metric-cell:last-child {
+  border-right: none;
+}
+.metric-ico {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+}
+.metric-label {
+  font-size: 12px;
+  color: var(--app-text-2);
+  margin-bottom: 3px;
+  white-space: nowrap;
+}
+.metric-val {
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.metric-prefix {
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.7;
+  margin-right: 1px;
+}
+.metric-delta {
+  margin-top: 2px;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Strategy version diff — highlight changed rows */
+.diff-changed > td {
+  background: rgba(240, 160, 32, 0.1) !important;
+}
+
+/* Section heading above a group of cards */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--app-text-3);
+  margin: 4px 2px 12px;
+}
+.section-title::before {
+  content: "";
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* Header glass blur */
+.app-header {
+  backdrop-filter: saturate(140%) blur(12px);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background-image: url(/logo.png);
+  background-size: 224% auto;
+  background-position: 50% 36%;
+  background-repeat: no-repeat;
+  flex: 0 0 auto;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+/* ---- AiCoin-style narrow icon rail (left nav) ---- */
+.rail-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 6px 12px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 4px;
+}
+.rail-brand-name {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: var(--app-text-2);
+  text-align: center;
+  line-height: 1.1;
+}
+.nav-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 6px;
+}
+.nav-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 11px 2px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--app-text-3);
+  font-family: inherit;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.nav-item .nav-ico {
+  font-size: 19px;
+  line-height: 1;
+  display: inline-flex;
+}
+.nav-item .nav-label {
+  font-size: 11px;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.nav-item:hover {
+  color: var(--app-text);
+  background: color-mix(in srgb, var(--app-text) 7%, transparent);
+}
+.nav-item.active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+
+/* Auth (login) screen */
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  background: var(--app-bg);
+}
+.auth-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(800px 500px at 70% 10%, rgba(59, 130, 246, 0.18), transparent 60%),
+    radial-gradient(700px 480px at 20% 90%, rgba(22, 199, 132, 0.12), transparent 60%);
+}
+.auth-card {
+  position: relative;
+  width: 392px;
+  max-width: 100%;
+  padding: 36px 32px;
+  border-radius: 18px;
+  border: 1px solid var(--card-border);
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+.auth-logo {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+  border-radius: 16px;
+  background-image: url(/logo.png);
+  background-size: 224% auto;
+  background-position: 50% 36%;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--app-scroll);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--card-border-hover);
+  background-clip: padding-box;
+}
+
+/* ---- AiCoin-style Settings page ---- */
+.set-page { max-width: 880px; margin: 0 auto; padding: 20px 16px 40px; }
+.set-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 4px 24px; }
+.set-card-h { font-size: 15px; font-weight: 700; color: var(--app-text); padding: 18px 0 4px; }
+.set-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  padding: 20px 0; border-top: 1px solid var(--card-border); min-height: 64px;
+}
+.set-card-h + .set-row { border-top: none; }
+/* Draggable settings dialog: title bar is the drag handle */
+.set-drag-h { cursor: move; user-select: none; width: 100%; }
+/* Settings rows inside the rail dialog (no outer card frame) */
+.set-rows > .set-row:first-child { border-top: none; }
+.set-rows .set-row { padding: 18px 2px; min-height: 58px; }
+.set-label { display: flex; flex-direction: column; gap: 4px; }
+.set-label > span:first-child { font-size: 14px; font-weight: 600; color: var(--app-text); }
+.set-hint { font-size: 11.5px; color: var(--app-text-3); max-width: 460px; }
+.set-ctrl { flex: 0 0 auto; }
+.set-switch { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; color: var(--app-text-2); }
+
+/* theme preview tiles */
+.set-tiles { display: flex; gap: 14px; }
+.set-tile {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 8px; border: 2px solid var(--card-border); border-radius: 12px;
+  background: transparent; cursor: pointer; transition: border-color .12s ease;
+}
+.set-tile:hover { border-color: var(--card-border-hover); }
+.set-tile.on { border-color: var(--accent); }
+.set-tile-prev {
+  position: relative; width: 132px; height: 80px; border: 1px solid; border-radius: 8px; overflow: hidden;
+}
+.set-tile-bar { position: absolute; left: 12px; top: 30px; width: 70px; height: 9px; border-radius: 3px; opacity: .85; }
+.set-tile-bar.sm { top: 46px; width: 46px; opacity: 1; }
+.set-tile-dot { position: absolute; right: auto; left: 12px; top: 12px; width: 12px; height: 12px; border-radius: 3px; }
+.set-tile-label { font-size: 13px; font-weight: 600; color: var(--app-text); }
+
+/* ---- Strategy marketplace (AiCoin-style 策略广场) ---- */
+.st-wrap { display: flex; gap: 16px; margin: -8px; }
+.st-nav {
+  flex: 0 0 210px; display: flex; flex-direction: column; gap: 4px; padding: 8px;
+  border-right: 1px solid var(--card-border);
+}
+.st-nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px;
+  border: none; background: transparent; cursor: pointer; text-align: left; width: 100%;
+  transition: background .12s ease;
+}
+.st-nav-item:hover { background: color-mix(in srgb, var(--app-text) 5%, transparent); }
+.st-nav-item.on { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.st-nav-ico { font-size: 18px; color: var(--app-text-2); flex: 0 0 auto; }
+.st-nav-item.on .st-nav-ico { color: var(--accent); }
+.st-nav-txt { display: flex; flex-direction: column; min-width: 0; }
+.st-nav-title { font-size: 13.5px; font-weight: 600; color: var(--app-text); display: flex; align-items: center; gap: 6px; }
+.st-nav-sub { font-size: 11px; color: var(--app-text-3); margin-top: 1px; }
+.st-hot { font-size: 9px; font-weight: 700; color: #fff; background: #ff5c5c; border-radius: 3px; padding: 0 4px; line-height: 14px; }
+
+.st-main { flex: 1; min-width: 0; padding: 8px 8px 24px; }
+.st-demo { font-size: 11.5px; color: var(--app-text-3); background: color-mix(in srgb, var(--app-text) 4%, transparent); border-radius: 8px; padding: 6px 12px; margin-bottom: 14px; }
+.st-title { font-size: 20px; font-weight: 700; color: var(--app-text); margin: 4px 0 14px; }
+.st-sec-h { display: flex; align-items: center; justify-content: space-between; margin: 20px 0 10px; }
+.st-sec-h > span { font-size: 15px; font-weight: 700; color: var(--app-text); }
+.st-more { font-size: 12px; color: var(--app-text-3); cursor: pointer; }
+.st-more:hover { color: var(--accent); }
+
+.st-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.st-grid-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 1500px) { .st-grid, .st-grid-5 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .st-grid, .st-grid-5 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.st-card {
+  display: flex; flex-direction: column; gap: 6px; padding: 16px;
+  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px;
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+.st-card:hover { border-color: var(--card-border-hover); box-shadow: 0 6px 18px rgba(0,0,0,.06); }
+.st-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.st-card-top b { font-size: 14px; color: var(--app-text); }
+.st-lbl { font-size: 12px; color: var(--app-text-3); }
+.st-profit { font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -0.5px; }
+.st-profit.sm { font-size: 22px; }
+.st-card-meta { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--app-text-2); margin-top: 2px; }
+.st-card-sub { font-size: 12px; color: var(--app-text-3); }
+.st-coins { display: inline-flex; align-items: center; }
+.st-coin { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; color: #fff; font-size: 9px; font-weight: 700; border: 1.5px solid var(--card-bg); }
+.st-more-n { font-size: 11px; color: var(--app-text-3); margin-left: 4px; font-style: normal; }
+.st-kv { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--app-text-3); }
+.st-kv b { color: var(--app-text); font-weight: 600; }
+.st-meta-r { color: var(--app-text-3); }
+.st-ind-name { font-size: 14px; font-weight: 600; color: var(--app-text); margin-bottom: 2px; min-height: 38px; }
+.st-ind-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.st-spark { width: 120px; height: 36px; flex: 0 0 auto; opacity: .9; }
+
+.st-run {
+  margin-top: 10px; height: 38px; border: none; border-radius: 8px; cursor: pointer;
+  font-size: 13px; font-weight: 600; font-family: inherit;
+  background: color-mix(in srgb, var(--app-text) 8%, transparent); color: var(--app-text);
+  transition: background .12s ease, color .12s ease;
+}
+.st-run:hover { background: color-mix(in srgb, var(--app-text) 14%, transparent); }
+.st-run.primary { background: var(--app-text); color: var(--app-bg); }
+.st-run.primary:hover { opacity: .9; }
+.st-run.ghost { background: transparent; border: 1px solid var(--card-border); }
+.st-btn-row { display: flex; gap: 8px; }
+.st-btn-row .st-run { flex: 1; }
+
+/* Arbitrage table */
+.st-table { display: flex; flex-direction: column; }
+.st-tr {
+  display: grid; grid-template-columns: 1.2fr 2.4fr 1fr 1fr 1fr 1.2fr; align-items: center; gap: 10px;
+  padding: 12px 10px; border-bottom: 1px solid var(--card-border); font-size: 13px;
+}
+.st-tr .l { text-align: left; } .st-tr .r { text-align: right; justify-self: end; }
+.st-th { color: var(--app-text-3); font-size: 12px; border-bottom: 1px solid var(--card-border); }
+.st-combo { color: var(--app-text-2); font-size: 12px; }
+.st-tr .st-run { margin-top: 0; height: 30px; padding: 0 14px; }
+
+/* ── 经典策略库 (Strategy Library) ── */
+/* Right edge the header search box aligns to: the 标签 column's content edge.
+   Columns sum to 1208px (expand 48 + 190+110+130+220+76+70+72+92+tags200); we trim
+   ~24px of cell padding/slack so the box lines up with where the tag chips actually end. */
+.stlib { --stlib-cols: 1184px; }
+.stlib-head { display: flex; align-items: center; gap: 12px; margin: 4px 0 12px; flex-wrap: wrap; padding-right: max(0px, calc(100% - var(--stlib-cols))); }
+.stlib-sub { font-size: 12px; color: var(--app-text-3); }
+.stlib-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.stlib-tab {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; cursor: pointer;
+  font-size: 13px; font-weight: 600; font-family: inherit; color: var(--app-text-2);
+  background: color-mix(in srgb, var(--app-text) 5%, transparent); border: 1px solid transparent;
+  border-radius: 8px; transition: all .12s ease;
+}
+.stlib-tab:hover { color: var(--app-text); }
+.stlib-tab.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.stlib-tab i { font-style: normal; font-size: 11px; font-weight: 700; color: var(--app-text-3); }
+.stlib-tab.on i { color: var(--accent); }
+.stlib-catdesc { font-size: 12px; color: var(--app-text-3); margin: 0 0 10px; line-height: 1.6; }
+.stlib-filters { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.stlib-flbl { font-size: 12px; color: var(--app-text-3); }
+.stlib-core {
+  padding: 3px 12px; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;
+  color: var(--app-text-2); background: transparent; border: 1px solid var(--card-border); border-radius: 6px;
+}
+.stlib-core.on { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.stlib-count { font-size: 12px; color: var(--app-text-3); }
+.stlib-tagrow { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.stlib-minichip { font-size: 11px; color: var(--app-text-3); background: color-mix(in srgb, var(--app-text) 6%, transparent); border-radius: 4px; padding: 1px 6px; }
+.stlib-table .ant-table-row { cursor: pointer; }
+
+/* Detail (expanded row) */
+.stlib-detail { padding: 6px 4px 10px; }
+.stlib-warn {
+  display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; font-weight: 600; line-height: 1.6;
+  padding: 9px 12px; border-radius: 8px; margin-bottom: 12px;
+  color: #ea3943; background: color-mix(in srgb, #ea3943 12%, transparent); border: 1px solid color-mix(in srgb, #ea3943 30%, transparent);
+}
+.stlib-warn > .anticon { margin-top: 3px; flex: 0 0 auto; }
+.stlib-warn-extra { margin-top: 5px; font-weight: 500; color: color-mix(in srgb, #ea3943 88%, var(--app-text)); }
+.stlib-d-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 28px; }
+@media (max-width: 1100px) { .stlib-d-grid { grid-template-columns: 1fr; } }
+.stlib-d-block { padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--app-text) 6%, transparent); }
+.stlib-d-h { font-size: 11px; font-weight: 700; color: var(--app-text-3); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+.stlib-d-b { font-size: 12.5px; color: var(--app-text-2); line-height: 1.65; }
+.stlib-d-ul { margin: 0; padding-left: 16px; }
+.stlib-d-ul li { margin: 2px 0; }
+.stlib-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.stlib-chip { font-size: 11.5px; color: var(--app-text); background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 5px; padding: 2px 8px; }
+.stlib-chip.ghost { color: var(--app-text-2); background: color-mix(in srgb, var(--app-text) 7%, transparent); }
+.stlib-params { display: flex; flex-direction: column; gap: 2px; }
+.stlib-param { display: flex; justify-content: space-between; gap: 12px; font-size: 12.5px; padding: 2px 0; }
+.stlib-param-k { color: var(--app-text-3); }
+.stlib-param-v { color: var(--app-text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.stlib-caps { display: flex; gap: 8px; }
+.stlib-cap { font-size: 11.5px; font-weight: 600; color: var(--app-text-3); background: color-mix(in srgb, var(--app-text) 6%, transparent); border-radius: 5px; padding: 2px 10px; opacity: .5; }
+.stlib-cap.on { opacity: 1; color: var(--up); background: color-mix(in srgb, var(--up) 14%, transparent); }
