@@ -75,7 +75,7 @@
 
 **账号体系**
 - 管理员 / 普通成员两种角色；所有写操作前后端双重鉴权
-- **独立的后台管理控制台**（端口 5174）供管理员增删成员
+- **独立的后台管理控制台**（端口 5911）供管理员增删成员
 
 **可靠性**
 - 启动自动对账（拉取在场订单 / 成交，重启不从空白起）
@@ -87,8 +87,8 @@
 
 | 层 | 技术 | 职责 |
 | --- | --- | --- |
-| **用户看板** | React 18 · TypeScript · Vite · Ant Design 5 · ECharts | 交易终端 UI、图表、实时数据（端口 5173） |
-| **后台管理** | React 18 · TypeScript · Vite · Ant Design 5 | 独立成员管理控制台，仅管理员可登录（端口 5174） |
+| **用户看板** | React 18 · TypeScript · Vite · Ant Design 5 · ECharts | 交易终端 UI、图表、实时数据（端口 5910） |
+| **后台管理** | React 18 · TypeScript · Vite · Ant Design 5 | 独立成员管理控制台，仅管理员可登录（端口 5911） |
 | **后端** | Python 3.10+ · FastAPI · SQLAlchemy 2.0 · Pydantic v2 | REST + WebSocket 服务、业务逻辑、鉴权 |
 | **行情/交易** | python-okx · websockets | 对接 OKX 模拟盘 REST 与公共 / 私有 WebSocket |
 | **数据库** | MySQL 8 | 用户、订单、成交、配置、回测、日志等持久化 |
@@ -101,7 +101,7 @@
 
 ```
    ┌──────────────────────┐   ┌──────────────────────┐
-   │   用户看板 (5173)     │   │   后台管理 (5174)     │
+   │   用户看板 (5910)     │   │   后台管理 (5911)     │
    │ React+TS+Antd+ECharts │   │  React+TS+Antd 成员管理│
    └───────────┬──────────┘   └───────────┬──────────┘
        REST /api │   WS /api/ws │ (行情/订单/成交/持仓/机器人/日志)
@@ -140,8 +140,8 @@ backend/            FastAPI 后端
     schemas/        Pydantic 模型
     core/           配置、数据库、鉴权、模拟盘安全锁
   scripts/          幂等补列迁移脚本
-frontend/           用户交易看板（端口 5173）
-admin-frontend/     后台成员管理控制台（端口 5174）
+frontend/           用户交易看板（端口 5910）
+admin-frontend/     后台成员管理控制台（端口 5911）
 okx_market_maker/   官方做市示例（作为库复用）
 deploy/mysql/       数据库初始化 SQL
 docs/               旧版文档与截图

@@ -10,10 +10,11 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 5173,
+    port: 5910,
+    strictPort: true,
     proxy: {
       // Handles REST (/api/...) and the WebSocket upgrade at /api/ws.
-      "/api": { target: "http://localhost:8000", changeOrigin: true, ws: true },
+      "/api": { target: "http://localhost:8910", changeOrigin: true, ws: true },
     },
   },
 });

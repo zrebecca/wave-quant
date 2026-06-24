@@ -1,6 +1,6 @@
 import { CaretDownOutlined, CaretUpOutlined, PlusOutlined, PushpinFilled, SearchOutlined } from "@ant-design/icons";
 import { App, Dropdown, Input, Segmented } from "antd";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import api from "@/api/client";
 import AddWatchlistModal from "@/components/AddWatchlistModal";
 import { usePolling } from "@/hooks/usePolling";
@@ -83,6 +83,41 @@ export default function WatchlistPanel({ inst, onSelect }: { inst: string; onSel
   });
   useEffect(() => localStorage.setItem(PIN_KEY, JSON.stringify(pinned)), [pinned]);
   const pinSet = useMemo(() => new Set(pinned), [pinned]);
+
+  // Server-side watchlist (per user). The DB is the source of truth; localStorage above
+  // is just an instant-render cache / offline fallback. On mount we hydrate from the
+  // server; if the user has no row yet we seed it from the current local list (migrating
+  // any pre-existing localStorage favorites). After hydration, changes are debounced
+  // back to the server.
+  const favsRef = useRef(favs);
+  favsRef.current = favs;
+  const pinnedRef = useRef(pinned);
+  pinnedRef.current = pinned;
+  const hydrated = useRef(false);
+  useEffect(() => {
+    let cancelled = false;
+    api.getWatchlist()
+      .then((wl) => {
+        if (cancelled) return;
+        if (wl.favorites?.length) {
+          setFavs(wl.favorites);
+          setPinned(wl.pinned ?? []);
+        } else {
+          // No server row yet → push the current local list up so it persists.
+          api.saveWatchlist({ favorites: favsRef.current, pinned: pinnedRef.current }).catch(() => {});
+        }
+      })
+      .catch(() => {}) // offline / not authed → keep local state
+      .finally(() => { if (!cancelled) hydrated.current = true; });
+    return () => { cancelled = true; };
+  }, []);
+  useEffect(() => {
+    if (!hydrated.current) return;
+    const id = setTimeout(() => {
+      api.saveWatchlist({ favorites: favs, pinned }).catch(() => {});
+    }, 500);
+    return () => clearTimeout(id);
+  }, [favs, pinned]);
 
   // Context-menu actions for a favorite row.
   const togglePin = (id: string) => setPinned((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));

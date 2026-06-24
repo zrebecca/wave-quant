@@ -307,9 +307,9 @@ body {
   background: rgba(255,255,255,.18); border-radius: 4px;
 }
 
-/* 48px primary icon rail */
+/* 60px primary icon rail */
 .tk-nav {
-  flex: 0 0 48px; width: 48px;
+  flex: 0 0 60px; width: 60px;
   display: flex; flex-direction: column;
   border-right: 1px solid var(--card-border);
   background: var(--card-bg);
@@ -318,20 +318,20 @@ body {
 .tk-nav-item {
   position: relative;
   flex: 0 0 auto;
-  height: 50px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  height: 58px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
   color: var(--app-text-3); cursor: pointer;
-  font-size: 10px; border: none; background: transparent; font-family: inherit;
+  font-size: 12.5px; font-weight: 500; border: none; background: transparent; font-family: inherit;
   transition: color .12s ease, background .12s ease;
 }
-.tk-nav-item .tk-nav-ico { font-size: 17px; line-height: 1; }
+.tk-nav-item .tk-nav-ico { font-size: 22px; line-height: 1; }
 /* Settings entry pinned to the bottom of the rail */
 .tk-nav-foot { margin-top: auto; border-top: 1px solid var(--card-border); }
 /* Home entry uses the brand logo image (AiCoin-style), cropped like .brand-logo. */
 .nav-home-logo {
   display: block;
-  width: 19px;
-  height: 19px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background-image: url(/logo.png);
   background-size: 224% auto;
@@ -339,7 +339,7 @@ body {
   background-repeat: no-repeat;
 }
 .tk-nav-item:hover { color: var(--app-text); background: color-mix(in srgb, var(--app-text) 6%, transparent); }
-.tk-nav-item.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.tk-nav-item.active { color: var(--accent); font-weight: 600; background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .tk-nav-item.active::before {
   content: ""; position: absolute; left: 0; top: 9px; bottom: 9px; width: 2px;
   border-radius: 0 2px 2px 0; background: var(--accent);

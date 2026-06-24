@@ -80,7 +80,7 @@ CACHE_BACKEND=memory               # 内置内存缓存，无需额外服务
 启动后端（首次启动会自动创建全部数据表）：
 
 ```bash
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8910
 ```
 
 看到日志 `OKX flag=1 = DEMO TRADING` 和 `Application startup complete` 即成功。
@@ -97,7 +97,7 @@ npm install        # 仅首次需要
 npm run dev
 ```
 
-打开浏览器访问 👉 **http://localhost:5173**
+打开浏览器访问 👉 **http://localhost:5910**
 
 > **需要登录。** 首次启动后端会自动创建超级管理员 **`admin` / `admin123456`**。用它登录可执行全部操作；
 > 普通成员（viewer）登录后**只能浏览**。成员由管理员在后台管理系统中创建（见第 4 步）。
@@ -111,10 +111,10 @@ npm run dev
 ```bash
 cd admin-frontend
 npm install        # 仅首次需要
-npm run dev        # 端口 5174
+npm run dev        # 端口 5911
 ```
 
-打开浏览器访问 👉 **http://localhost:5174**，用 `admin` / `admin123456` 登录。
+打开浏览器访问 👉 **http://localhost:5911**，用 `admin` / `admin123456` 登录。
 
 > 想换默认管理员账号密码，可在 `backend/.env` 设置 `DEFAULT_ADMIN_USERNAME` / `DEFAULT_ADMIN_PASSWORD`
 > （仅在数据库还没有任何用户时生效）。
@@ -125,10 +125,10 @@ npm run dev        # 端口 5174
 
 | 检查项 | 方法 | 预期 |
 | --- | --- | --- |
-| 后端健康 | 访问 http://localhost:8000/health | `{"status":"ok","mode":"demo"}` |
-| OKX 连通 | 访问 http://localhost:8000/api/account（需登录 token） | 返回真实模拟盘权益/余额 |
+| 后端健康 | 访问 http://localhost:8910/health | `{"status":"ok","mode":"demo"}` |
+| OKX 连通 | 访问 http://localhost:8910/api/account（需登录 token） | 返回真实模拟盘权益/余额 |
 | 数据表 | `mysql -u okx -pokx_pass okx_dashboard -e "SHOW TABLES;"` | 列出全部表 |
-| 前端页面 | http://localhost:5173 | 看板显示账户数据 |
+| 前端页面 | http://localhost:5910 | 看板显示账户数据 |
 | 实时行情 | 看板右上角状态 | 绿点「Live feed」，行情表数字跳动 |
 
 ---
@@ -137,7 +137,7 @@ npm run dev        # 端口 5174
 
 ```bash
 # 终端 1 · 后端
-cd backend && source .venv/bin/activate && uvicorn app.main:app --reload --port 8000
+cd backend && source .venv/bin/activate && uvicorn app.main:app --reload --port 8910
 
 # 终端 2 · 用户看板
 cd frontend && npm run dev
@@ -158,8 +158,8 @@ cd admin-frontend && npm run dev
 | `Access denied for user 'okx'` | 数据库用户没建好，重跑第 1 步。 |
 | `Can't connect to MySQL (2003)` | MySQL 没启动，先启动 MySQL 服务。 |
 | `/docs` 能开但 `/api/account` 报错 | OKX 密钥不对，或访问不到 OKX——在 `.env` 设置 `HTTP_PROXY`。 |
-| 右上角一直「Reconnecting」 | 后端没在 8000 运行；先起后端再刷新前端。 |
-| 端口被占用（8000 / 5173 / 5174） | 关掉占用进程，或换端口启动。 |
+| 右上角一直「Reconnecting」 | 后端没在 8910 运行；先起后端再刷新前端。 |
+| 端口被占用（8910 / 5910 / 5911） | 关掉占用进程，或换端口启动。 |
 | 想清空所有数据重来 | `mysql -u root -p -e "DROP DATABASE okx_dashboard;"` 后重跑第 1 步。 |
 
 ---
@@ -168,10 +168,10 @@ cd admin-frontend && npm run dev
 
 | 服务 | 地址 |
 | --- | --- |
-| 用户看板 | http://localhost:5173 |
-| 后台管理系统 | http://localhost:5174 |
-| 后端 API | http://localhost:8000 |
-| 接口文档（Swagger） | http://localhost:8000/docs |
-| 健康检查 | http://localhost:8000/health |
+| 用户看板 | http://localhost:5910 |
+| 后台管理系统 | http://localhost:5911 |
+| 后端 API | http://localhost:8910 |
+| 接口文档（Swagger） | http://localhost:8910/docs |
+| 健康检查 | http://localhost:8910/health |
 
 > 默认管理员：`admin` / `admin123456`（首次启动自动创建，生产环境请务必修改）。

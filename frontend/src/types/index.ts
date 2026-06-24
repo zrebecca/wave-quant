@@ -5,6 +5,22 @@ export interface EquityPoint {
   unrealized_pnl: number;
 }
 
+export interface Watchlist {
+  favorites: string[];
+  pinned: string[];
+}
+
+// Per-user display preferences (设置), persisted server-side.
+export interface Prefs {
+  theme: "light" | "dark";
+  up_down: "green" | "red";
+  fiat: "USD" | "CNY";
+  lang: "en" | "zh" | "zh-TW";
+  coin_icons: boolean;
+  /** False when the server has no saved row yet — client should migrate local settings up. */
+  stored?: boolean;
+}
+
 export type Role = "admin" | "viewer";
 
 export interface User {

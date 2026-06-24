@@ -14,9 +14,11 @@ from app.api import (
     orders,
     pnl,
     positions,
+    prefs,
     risk,
     strategy,
     trades,
+    watchlist,
     websocket,
 )
 
@@ -36,4 +38,6 @@ api_router.include_router(risk.router, tags=["risk"])
 api_router.include_router(logs.router, tags=["logs"])
 api_router.include_router(backtest.router, tags=["backtest"])
 api_router.include_router(pnl.router, tags=["pnl"])
+api_router.include_router(prefs.router, tags=["prefs"])
+api_router.include_router(watchlist.router, tags=["watchlist"])
 api_router.include_router(websocket.router, tags=["websocket"])

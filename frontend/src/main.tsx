@@ -9,6 +9,7 @@ import App from "./App";
 import { I18nProvider } from "./i18n";
 import { AuthProvider } from "./store/AuthContext";
 import { PrefsProvider } from "./store/PrefsContext";
+import PrefsSync from "./store/PrefsSync";
 import { ThemeProvider } from "./store/ThemeContext";
 import { WsProvider } from "./store/WsContext";
 import { getTheme } from "./theme";
@@ -27,6 +28,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <BrowserRouter>
                   <AuthProvider>
                     <PrefsProvider>
+                      <PrefsSync />
                       <WsProvider>
                         <App />
                       </WsProvider>

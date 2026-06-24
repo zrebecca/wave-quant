@@ -80,7 +80,7 @@ CACHE_BACKEND=memory               # built-in in-memory cache; no extra service 
 Start the backend (first start auto-creates all tables):
 
 ```bash
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8910
 ```
 
 Logs `OKX flag=1 = DEMO TRADING` and `Application startup complete` mean success.
@@ -97,7 +97,7 @@ npm install        # first time only
 npm run dev
 ```
 
-Open 👉 **http://localhost:5173**
+Open 👉 **http://localhost:5910**
 
 > **Login required.** On first start the backend seeds a super-admin **`admin` / `admin123456`** — it can do everything; member (viewer) accounts are **read-only**. Members are created by an admin in the admin console (Step 4).
 
@@ -110,10 +110,10 @@ The admin console is a **separate frontend**, admin-only, for adding / editing /
 ```bash
 cd admin-frontend
 npm install        # first time only
-npm run dev        # port 5174
+npm run dev        # port 5911
 ```
 
-Open 👉 **http://localhost:5174** and log in with `admin` / `admin123456`.
+Open 👉 **http://localhost:5911** and log in with `admin` / `admin123456`.
 
 > To change the default admin credentials, set `DEFAULT_ADMIN_USERNAME` / `DEFAULT_ADMIN_PASSWORD` in `backend/.env`
 > (only effective while the database has no users yet).
@@ -124,10 +124,10 @@ Open 👉 **http://localhost:5174** and log in with `admin` / `admin123456`.
 
 | Check | How | Expected |
 | --- | --- | --- |
-| Backend health | open http://localhost:8000/health | `{"status":"ok","mode":"demo"}` |
-| OKX connectivity | open http://localhost:8000/api/account (needs a login token) | real demo equity/balance |
+| Backend health | open http://localhost:8910/health | `{"status":"ok","mode":"demo"}` |
+| OKX connectivity | open http://localhost:8910/api/account (needs a login token) | real demo equity/balance |
 | Tables | `mysql -u okx -pokx_pass okx_dashboard -e "SHOW TABLES;"` | all tables listed |
-| Frontend | http://localhost:5173 | dashboard shows account data |
+| Frontend | http://localhost:5910 | dashboard shows account data |
 | Live feed | top-right status in the dashboard | green "Live feed" dot, ticking numbers |
 
 ---
@@ -136,7 +136,7 @@ Open 👉 **http://localhost:5174** and log in with `admin` / `admin123456`.
 
 ```bash
 # Terminal 1 · backend
-cd backend && source .venv/bin/activate && uvicorn app.main:app --reload --port 8000
+cd backend && source .venv/bin/activate && uvicorn app.main:app --reload --port 8910
 
 # Terminal 2 · user dashboard
 cd frontend && npm run dev
@@ -157,8 +157,8 @@ Stop with `Ctrl + C` in each terminal.
 | `Access denied for user 'okx'` | DB user not set up — re-run Step 1. |
 | `Can't connect to MySQL (2003)` | MySQL not running — start the MySQL service. |
 | `/docs` opens but `/api/account` errors | wrong OKX key, or OKX unreachable — set `HTTP_PROXY` in `.env`. |
-| Top-right stuck on "Reconnecting" | backend not on 8000 — start it, then refresh. |
-| Port in use (8000 / 5173 / 5174) | kill the process holding it, or start on another port. |
+| Top-right stuck on "Reconnecting" | backend not on 8910 — start it, then refresh. |
+| Port in use (8910 / 5910 / 5911) | kill the process holding it, or start on another port. |
 | Wipe all data and start over | `mysql -u root -p -e "DROP DATABASE okx_dashboard;"` then re-run Step 1. |
 
 ---
@@ -167,10 +167,10 @@ Stop with `Ctrl + C` in each terminal.
 
 | Service | URL |
 | --- | --- |
-| User dashboard | http://localhost:5173 |
-| Admin console | http://localhost:5174 |
-| Backend API | http://localhost:8000 |
-| API docs (Swagger) | http://localhost:8000/docs |
-| Health check | http://localhost:8000/health |
+| User dashboard | http://localhost:5910 |
+| Admin console | http://localhost:5911 |
+| Backend API | http://localhost:8910 |
+| API docs (Swagger) | http://localhost:8910/docs |
+| Health check | http://localhost:8910/health |
 
 > Default admin: `admin` / `admin123456` (seeded on first start — change it for production).

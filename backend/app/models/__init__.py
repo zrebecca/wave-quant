@@ -14,6 +14,8 @@ from app.models.order import Order, Trade
 from app.models.position import Position
 from app.models.strategy_version import StrategyVersion
 from app.models.user import User
+from app.models.user_prefs import UserPref
+from app.models.watchlist import UserWatchlist
 
 __all__ = [
     "Account",
@@ -30,4 +32,6 @@ __all__ = [
     "RiskEvent",
     "BacktestRun",
     "StrategyVersion",
+    "UserWatchlist",
+    "UserPref",
 ]

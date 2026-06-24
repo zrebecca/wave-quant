@@ -23,6 +23,7 @@ import type {
   Order,
   OrderBook,
   PnlSummary,
+  Prefs,
   PublicTrades,
   Position,
   RiskConfig,
@@ -33,6 +34,7 @@ import type {
   Ticker,
   Trade,
   User,
+  Watchlist,
 } from "@/types";
 
 const TOKEN_KEY = "okx_token";
@@ -229,6 +231,18 @@ export const api = {
 
   getPnlSummary: (days?: number) =>
     http.get<PnlSummary>("/pnl/summary", { params: { days } }).then((r) => r.data),
+
+  // Per-user watchlist (自选) — stored server-side, follows the account.
+  getWatchlist: () =>
+    http.get<Watchlist>("/me/watchlist").then((r) => r.data),
+  saveWatchlist: (body: Watchlist) =>
+    http.put<Watchlist>("/me/watchlist", body).then((r) => r.data),
+
+  // Per-user display preferences (设置) — stored server-side, follows the account.
+  getPrefs: () =>
+    http.get<Prefs>("/me/prefs").then((r) => r.data),
+  savePrefs: (body: Partial<Prefs>) =>
+    http.put<Prefs>("/me/prefs", body).then((r) => r.data),
 
   getBacktestHistory: (params?: { limit?: number; strategy?: string }) =>
     http.get<BacktestRun[]>("/backtest/history", { params }).then((r) => r.data),

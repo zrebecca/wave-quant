@@ -75,7 +75,7 @@ Evolved from the official [okx-sample-market-maker](https://github.com/okxapi/ok
 
 **Accounts**
 - Admin / member roles; every write operation is gated on both front and back end
-- A **separate admin console** (port 5174) for managing members
+- A **separate admin console** (port 5911) for managing members
 
 **Reliability**
 - Startup auto-reconcile (pulls in-flight orders/fills so a restart isn't blank)
@@ -87,8 +87,8 @@ Evolved from the official [okx-sample-market-maker](https://github.com/okxapi/ok
 
 | Layer | Tech | Role |
 | --- | --- | --- |
-| **User dashboard** | React 18 · TypeScript · Vite · Ant Design 5 · ECharts | Trading terminal UI, charts, live data (port 5173) |
-| **Admin console** | React 18 · TypeScript · Vite · Ant Design 5 | Standalone member management, admin-only (port 5174) |
+| **User dashboard** | React 18 · TypeScript · Vite · Ant Design 5 · ECharts | Trading terminal UI, charts, live data (port 5910) |
+| **Admin console** | React 18 · TypeScript · Vite · Ant Design 5 | Standalone member management, admin-only (port 5911) |
 | **Backend** | Python 3.10+ · FastAPI · SQLAlchemy 2.0 · Pydantic v2 | REST + WebSocket services, business logic, auth |
 | **Market/Trade** | python-okx · websockets | OKX Demo Trading REST + public/private WebSocket |
 | **Database** | MySQL 8 | Users, orders, fills, configs, backtests, logs |
@@ -101,7 +101,7 @@ Evolved from the official [okx-sample-market-maker](https://github.com/okxapi/ok
 
 ```
    ┌──────────────────────┐   ┌──────────────────────┐
-   │  User dashboard (5173)│   │   Admin console (5174)│
+   │  User dashboard (5910)│   │   Admin console (5911)│
    │ React+TS+Antd+ECharts │   │  React+TS+Antd members │
    └───────────┬──────────┘   └───────────┬──────────┘
        REST /api │   WS /api/ws │ (market/orders/fills/positions/bot/logs)
@@ -141,8 +141,8 @@ backend/            FastAPI backend
     schemas/        Pydantic models
     core/           config, database, auth, demo-only safety lock
   scripts/          idempotent column-migration scripts
-frontend/           user trading dashboard (port 5173)
-admin-frontend/     admin member-management console (port 5174)
+frontend/           user trading dashboard (port 5910)
+admin-frontend/     admin member-management console (port 5911)
 okx_market_maker/   official market-making sample (reused as a library)
 deploy/mysql/       database init SQL
 docs/               legacy docs & screenshots

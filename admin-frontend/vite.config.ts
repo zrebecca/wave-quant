@@ -2,8 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
-// Admin console runs on its own port (5174) and proxies the API to the
-// shared backend on :8000 — same backend as the trading dashboard.
+// Admin console runs on its own port (5911) and proxies the API to the
+// shared backend on :8910 — same backend as the trading dashboard.
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -11,9 +11,10 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 5174,
+    port: 5911,
+    strictPort: true,
     proxy: {
-      "/api": { target: "http://localhost:8000", changeOrigin: true },
+      "/api": { target: "http://localhost:8910", changeOrigin: true },
     },
   },
 });
